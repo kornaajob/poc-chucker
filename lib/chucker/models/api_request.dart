@@ -4,7 +4,7 @@ class ApiRequest {
   final Map<String, dynamic> headers;
   final dynamic body;
   final DateTime requestTime;
-  final String? encryptedBody; // เพิ่มฟิลด์สำหรับเก็บข้อมูลที่เข้ารหัส
+  final String? encryptedBody;
 
   ApiRequest({
     required this.method,

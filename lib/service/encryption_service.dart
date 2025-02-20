@@ -22,10 +22,9 @@ class EncryptionService {
   }
 
   void _initializeWithKey(String key) {
-    // สร้าง key ที่มีความยาว 32 bytes (256 bits)
+    // Create a 32-byte (256-bit) key
     final List<int> keyBytes;
     if (base64.decode(key).length != KEY_SIZE) {
-      // ถ้า key ไม่ได้ 32 bytes ให้ทำการ hash ด้วย SHA-256 เพื่อให้ได้ความยาวที่ถูกต้อง
       final hash = sha256.convert(utf8.encode(key));
       keyBytes = hash.bytes;
     } else {
@@ -33,9 +32,11 @@ class EncryptionService {
     }
 
     _encryptionKey = Key(Uint8List.fromList(keyBytes));
-    _iv = IV.fromSecureRandom(16); // สร้าง IV แบบสุ่มที่ปลอดภัย
+    _iv = IV.fromSecureRandom(16);
 
+    // Set up AES encryption in GCM mode for authenticated encryption
     switch (algorithm.toUpperCase()) {
+      case 'AES-256-GCM':
       case 'AES-256':
         _encrypter = Encrypter(AES(_encryptionKey, mode: AESMode.gcm));
         break;
@@ -44,9 +45,8 @@ class EncryptionService {
     }
   }
 
-  // Mock key exchange
   Future<String> exchangeKey() async {
-    // Simulate server response with a secure random key
+    // Mock key exchange process
     final serverKey = await _mockServerKeyExchange();
     final clientKey = _generateClientKey();
     final sharedKey = _deriveSharedKey(serverKey, clientKey);
@@ -55,7 +55,7 @@ class EncryptionService {
   }
 
   Future<String> _mockServerKeyExchange() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(Duration(milliseconds: 500)); // Simulate network delay
     final random = Random.secure();
     final values = List<int>.generate(32, (i) => random.nextInt(256));
     return base64.encode(values);
@@ -69,15 +69,13 @@ class EncryptionService {
 
   String _deriveSharedKey(String serverKey, String clientKey) {
     final combined = utf8.encode(serverKey + clientKey);
-    final hash =
-        sha256.convert(combined); // ใช้ SHA-256 เพื่อให้ได้ key 256 bits
+    final hash = sha256.convert(combined);
     return base64.encode(hash.bytes);
   }
 
   String encrypt(String data) {
     try {
       final encrypted = _encrypter.encrypt(data, iv: _iv);
-      // รวม IV กับข้อมูลที่เข้ารหัสเพื่อให้สามารถถอดรหัสได้
       final combined = _iv.bytes + encrypted.bytes;
       return base64.encode(combined);
     } catch (e) {
@@ -89,7 +87,6 @@ class EncryptionService {
   String decrypt(String encryptedData) {
     try {
       final decoded = base64.decode(encryptedData);
-      // แยก IV และข้อมูลที่เข้ารหัส
       final iv = IV(decoded.sublist(0, 16));
       final encryptedBytes = decoded.sublist(16);
       final encrypted = Encrypted(encryptedBytes);

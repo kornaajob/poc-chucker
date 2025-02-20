@@ -3,7 +3,7 @@ class ApiResponse {
   final Map<String, dynamic> headers;
   final dynamic body;
   final DateTime responseTime;
-  final String? encryptedBody; // เพิ่มฟิลด์สำหรับเก็บข้อมูลที่เข้ารหัส
+  final String? encryptedBody;
 
   ApiResponse({
     required this.statusCode,

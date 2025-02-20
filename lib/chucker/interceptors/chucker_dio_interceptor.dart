@@ -1,3 +1,5 @@
+// lib/chucker/interceptors/chucker_dio_interceptor.dart
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../manager/chucker_manager.dart';
 import '../models/api_request.dart';
@@ -37,7 +39,7 @@ class ChuckerDioInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioError err, ErrorInterceptorHandler handler) {
     if (err.response != null) {
       final apiResponse = ApiResponse(
         statusCode: err.response?.statusCode ?? 0,
